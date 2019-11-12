@@ -1,44 +1,132 @@
-{% extends "base.html" %}
-{% block content %}
-  <div class="jumbotron">
-    <h1>Puppy Company Blog</h1>
-    <p>Welcome to Our Company's Blog Page</p>
-  </div>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Social Blog</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<style>
+    /* Style for not login users */
+        header{
+            height: 100vh;
+            /* background-image: url(enter your photo url here!); */
+            /* flex-box thing */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-size: cover; 
+            margin-bottom: 30px;
+           }
+       *{
+           margin: 0px;
+           padding: 0px;
+           font-family: monospace;
+       }
+       #down{
+           position: absolute;
+           top:85vh;
+           padding: 20px;
+           font-size: 2.5em;
+       }
+       #down:hover
+       {
+           cursor: pointer;
+           background-color: #eee;
+           opacity: 0.8;
+       }
+       body{
+           width: 100%;
+       }
+       .container{
+          width: 100%;
+       }
+       .left{
+           background-color: #0796f5;
+           text-align: center;
+           align-items: center;
+           justify-content: center;
+           background-size: cover;
+           display: flex;
+       }
+       .right{
+           text-align: center;
+       }
+</style>
+<body>
+    {% if current_user.is_authenticated %}
+    <ul class="nav">
 
-  <div class="container">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('core.index') }}">Home</a>
+            </li>
+            <li class="nav-link"><a href="{{ url_for('users.account') }}">Account</a></li>
+            <li class="nav-link"><a href="{{ url_for('blog_posts.create_post') }}">Create Post</a></li><br>
+            <li class="nav-link"><a href="{{ url_for('users.logout') }}">Log Out</a></li>
+    </ul>
+    <div class="jumbotron">
+            <h1>Hello!</h1>
+            <p>Join the conversation.</p>
+            <a class="btn btn-primary" href="{{ url_for('blog_posts.create_post') }}" role="button">Create Post</a>
+          </div>
+        
+          <div class="container">
+        
+            {# Go through each blog post #}
+            {% for post in blog_posts.items %}
+        
+            <div class="card" >
+        
+              <div class="card-body">
+        
+        
+                <h2><a class="card-title" href="  {{ url_for('blog_posts.blog_post', blog_post_id=post.id) }}">{{ post.title }}</a></h2>
+                <a href="{{ url_for('users.user_posts', username=post.author.username) }}">Written By: {{ post.author.username }}</a>
+                <p>Published on: {{ post.date.strftime('%Y-%m-%d') }}</p>
+                <p class="card-text">{{ post.text[:100] }}...</p>
+                <a href="{{ url_for('blog_posts.blog_post', blog_post_id=post.id) }}" class="btn btn-primary">Read Blog Post</a>
+              </div>
+            </div>
+        
+           {% endfor %}
+        
+           <nav aria-label="Page navigation example">
+             <ul class="pagination justify-content-center">
+               {% for page_num in blog_posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                  {% if blog_posts.page == page_num %}
+                  <li class="page-item disabled">
+                    <a class="page-link" href="{{ url_for('core.index', page=page_num) }}">{{ page_num }}</a></li>
+                  </li>
+                  {% else %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('core.index', page=page_num) }}">{{ page_num }}</a></li>
+                  {% endif %}
+              {% endfor %}
+            </nav>
+        
+        
+    {% else %}
+    <!--Landing page-->
 
-    {# Go through each blog post #}
-    {% for post in blog_posts.items %}
-
-    <div class="card" >
-
-      <div class="card-body">
-
-
-        <h2><a class="card-title" href="  {{ url_for('blog_posts.blog_post', blog_post_id=post.id) }}">{{ post.title }}</a></h2>
-        <a href="{{ url_for('users.user_posts', username=post.author.username) }}">Written By: {{ post.author.username }}</a>
-        <p>Published on: {{ post.date.strftime('%Y-%m-%d') }}</p>
-        <p class="card-text">{{ post.text[:100] }}...</p>
-        <a href="{{ url_for('blog_posts.blog_post', blog_post_id=post.id) }}" class="btn btn-primary">Read Blog Post</a>
-      </div>
+    <div class="row">
+        <div class="col left">
+            <header>
+            <h1>Hear what people are talking about.</h1><br>
+            <h1>Join the conversation.</h1>
+            </header>
+        </div>
+        <div class="col right">
+            <header>
+            <div class="container">
+                <h3>Join</h3><br><br>
+                <a href="{{ url_for('users.register') }}" class="btn btn-primary btn-lg btn-block" role="button">Sign up</a>
+                <a href="{{ url_for('users.login') }}" class="btn btn-light btn-lg btn-block" role="button">Log in</a>
+            </div>
+            </header>
+        </div>
     </div>
-
-   {% endfor %}
-
-   <nav aria-label="Page navigation example">
-     <ul class="pagination justify-content-center">
-       {% for page_num in blog_posts.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-          {% if blog_posts.page == page_num %}
-          <li class="page-item disabled">
-            <a class="page-link" href="{{ url_for('core.index', page=page_num) }}">{{ page_num }}</a></li>
-          </li>
-          {% else %}
-            <li class="page-item"><a class="page-link" href="{{ url_for('core.index', page=page_num) }}">{{ page_num }}</a></li>
-          {% endif %}
-      {% endfor %}
-    </nav>
-
-
-
-
-{% endblock %}
+    {% endif %}
+</body>
+</html>
